@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using OutOfOffice.Data;
 using OutOfOffice.Models;
 using System.Diagnostics;
 
@@ -7,14 +9,26 @@ namespace OutOfOffice.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly ApplicationDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
         {
             _logger = logger;
+            _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            try
+            {
+                var employeeCount = await _context.Employees.CountAsync();
+                ViewBag.Message = $"Połączenie działa! Liczba pracowników: {employeeCount}";
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Message = $"Błąd połączenia: {ex.Message}";
+            }
+
             return View();
         }
 
